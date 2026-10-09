@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <!-- Bypass de Requisitos de Hardware (TPM, RAM, CPU, SecureBoot) -->
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://microsoft.com" xmlns:xsi="http://w3.org">
+            <RunSynchronous>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassCPUCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+            <!-- Configuración básica de idioma del instalador (Ajustable) -->
+            <UserData>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+        </component>
+    </settings>
+
+    <!-- Omisión de preguntas de privacidad y configuración de cuenta -->
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://microsoft.com" xmlns:xsi="http://w3.org">
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideLocalUserPage>true</HideLocalUserPage>
+                <HideOEMRegistrationPage>true</HideOEMRegistrationPage>
+                <HideOnlineAccountPage>true</HideOnlineAccountPage>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <ProtectYourPC>3</ProtectYourPC> <!-- Desactiva el envío de datos Express/Telemetría -->
+            </OOBE>
+            <!-- Creación del usuario local sin contraseña -->
+            <UserAccounts>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value></Value> <!-- Vacío = Sin contraseña -->
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Description>Usuario Principal</Description>
+                        <DisplayName>usuario</DisplayName>
+                        <Group>Administrators</Group>
+                        <Name>usuario</Name>
+                    </LocalAccount>
+                </LocalAccounts>
+            </UserAccounts>
+            <!-- Iniciar sesión automáticamente la primera vez -->
+            <AutoLogon>
+                <Password>
+                    <Value></Value>
+                    <PlainText>true</PlainText>
+                </Password>
+                <Enabled>true</Enabled>
+                <Username>usuario</Username>
+            </AutoLogon>
+        </component>
+    </settings>
+</unattend>
