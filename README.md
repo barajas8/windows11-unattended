@@ -34,6 +34,3 @@ Archivo `autounattend.xml` para instalar **Windows 11** de forma casi desatendid
 
 Instalar Windows 11 en hardware no compatible no está soportado por Microsoft y puede dejar de recibir algunas actualizaciones. Úsalo bajo tu responsabilidad. Un usuario administrador sin contraseña y con inicio automático es cómodo para laboratorios o máquinas virtuales, pero **no es recomendable en equipos de uso diario**.
 
-## Licencia
-
-MIT
