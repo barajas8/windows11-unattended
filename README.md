@@ -19,7 +19,7 @@ Archivo `autounattend.xml` para instalar **Windows 11** de forma casi desatendid
 ## Cómo usarlo
 
 1. Descarga la ISO oficial de Windows 11 desde [microsoft.com/software-download/windows11](https://www.microsoft.com/software-download/windows11).
-2. Crea un USB de arranque (por ejemplo con [Rufus](https://rufus.ie/) o [Ventoy](https://www.ventoy.net/)).
+2. Crea un USB de arranque (por ejemplo con [Rufus](https://rufus.ie/)).
 3. Copia `autounattend.xml` en la **raíz** del USB (junto a `setup.exe`).
 4. Arranca el equipo desde el USB. Windows Setup detecta el archivo automáticamente.
 
