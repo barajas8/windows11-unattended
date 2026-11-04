@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<unattend xmlns="urn:schemas-microsoft-com:unattend">
+<!--
+  autounattend.xml para Windows 11 (x64)
+  - Salta los requisitos de TPM, Secure Boot, RAM y CPU
+  - Idioma y teclado en español (España)
+  - Crea un usuario local "usuario" (administrador, sin contraseña) con inicio automático
+  - Sin cuenta Microsoft ni preguntas de privacidad en el OOBE
+  - El particionado del disco se deja MANUAL a propósito, para no borrar nada sin querer
+  https://github.com/barajas8/windows11-unattended
+-->
+<unattend xmlns="urn:schemas-microsoft-com:unattend"
+          xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- ============ FASE 1: windowsPE (instalador) ============ -->
     <settings pass="windowsPE">
-        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://microsoft.com" xmlns:xsi="http://w3.org">
+
+        <!-- Idioma del instalador y del sistema -->
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <SetupUILanguage>
+                <UILanguage>es-ES</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>040a:0000040a</InputLocale>
+            <SystemLocale>es-ES</SystemLocale>
+            <UILanguage>es-ES</UILanguage>
+            <UserLocale>es-ES</UserLocale>
+        </component>
+
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <!-- Bypass de requisitos de hardware de Windows 11 -->
             <RunSynchronous>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>1</Order>
@@ -9,38 +35,72 @@
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>2</Order>
-                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>3</Order>
-                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>4</Order>
                     <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassCPUCheck /t REG_DWORD /d 1 /f</Path>
                 </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassStorageCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
             </RunSynchronous>
             <UserData>
                 <AcceptEula>true</AcceptEula>
+                <!-- Clave genérica de instalación de Windows 11 Pro (pública, NO activa Windows).
+                     Sirve para saltar la pantalla de clave. Borra el bloque <ProductKey> si quieres elegir edición a mano. -->
+                <ProductKey>
+                    <Key>VK7JG-NPHTM-C97JM-9MPGT-3V66T</Key>
+                    <WillShowUI>OnError</WillShowUI>
+                </ProductKey>
             </UserData>
         </component>
     </settings>
 
+    <!-- ============ FASE 2: specialize ============ -->
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <RunSynchronous>
+                <!-- Permite terminar el OOBE sin conexión a Internet -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+    </settings>
+
+    <!-- ============ FASE 3: oobeSystem (primer arranque) ============ -->
     <settings pass="oobeSystem">
-        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://microsoft.com" xmlns:xsi="http://w3.org">
+
+        <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <InputLocale>040a:0000040a</InputLocale>
+            <SystemLocale>es-ES</SystemLocale>
+            <UILanguage>es-ES</UILanguage>
+            <UserLocale>es-ES</UserLocale>
+        </component>
+
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <TimeZone>Romance Standard Time</TimeZone>
             <OOBE>
                 <HideEULAPage>true</HideEULAPage>
                 <HideLocalUserPage>true</HideLocalUserPage>
                 <HideOEMRegistrationPage>true</HideOEMRegistrationPage>
-                <HideOnlineAccountPage>true</HideOnlineAccountPage>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
                 <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
-                <ProtectYourPC>3</ProtectYourPC> 
+                <ProtectYourPC>3</ProtectYourPC>
             </OOBE>
+
             <UserAccounts>
                 <LocalAccounts>
                     <LocalAccount wcm:action="add">
                         <Password>
-                            <Value></Value> 
+                            <Value></Value>
                             <PlainText>true</PlainText>
                         </Password>
                         <Description>Usuario Principal</Description>
@@ -50,6 +110,7 @@
                     </LocalAccount>
                 </LocalAccounts>
             </UserAccounts>
+
             <AutoLogon>
                 <Password>
                     <Value></Value>
@@ -58,6 +119,15 @@
                 <Enabled>true</Enabled>
                 <Username>usuario</Username>
             </AutoLogon>
+
+            <FirstLogonCommands>
+                <!-- Que la contraseña nunca caduque -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <CommandLine>net accounts /maxpwage:UNLIMITED</CommandLine>
+                    <Description>Desactivar caducidad de contraseñas</Description>
+                </SynchronousCommand>
+            </FirstLogonCommands>
         </component>
     </settings>
 </unattend>
